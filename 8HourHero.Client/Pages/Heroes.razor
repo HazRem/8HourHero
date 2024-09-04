@@ -1,0 +1,29 @@
+﻿@page "/heroes"
+@inject HttpClient http
+<h3>Heroes</h3>
+
+@if (heroes.Count <= 0)
+{
+    <span>Loading Heroes...</span>
+}
+else
+{   
+    <ul>
+        @foreach (var hero in heroes)
+        {
+            <li>@hero.Name - @hero.Level - @hero.Experience/@hero.NextLevelExperience</li>
+        }
+
+    </ul>
+}
+
+@code {
+    List<Hero> heroes = new List<Hero>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await http.GetFromJsonAsync<List<Hero>>("api/heroes");
+        if (result != null)
+            heroes = result;
+    }
+}
