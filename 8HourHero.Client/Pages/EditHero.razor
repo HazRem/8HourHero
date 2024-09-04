@@ -1,0 +1,51 @@
+﻿@page "/hero"
+@page "/hero/{id:int}"
+@inject HttpClient http
+
+@if(Id is null)
+{
+    <PageTitle>Create a new Hero</PageTitle>
+    <h3>Create a new Hero</h3>
+}
+else
+{
+    <PageTitle>Edit @hero.Name</PageTitle>
+    <h3>Edit @hero.Name</h3>
+}
+
+<EditForm Model="hero" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="hero.Name" class="form-control"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    Hero hero = new Hero { Name = "New Hero" };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await http.GetFromJsonAsync<Hero>($"api/hero/{Id}");
+            if (result is not null)
+                hero = result;
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            http.PostAsJsonAsync("api/hero", hero);
+        } 
+        else
+        {
+            http.PutAsJsonAsync($"api/hero/{Id}", hero);
+        }
+    }
+}
